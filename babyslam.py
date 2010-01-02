@@ -1,4 +1,4 @@
-import pygame, random, sys
+import pygame, random, sys, os, re
 from pygame.locals import *
 
 TEXTCOLOR = (255, 255, 255)
@@ -11,38 +11,42 @@ IMAGEMAXSIZE = 8
 PLAYERMOVERATE = 5
 ESCAPE_CLAUSE = "babydodo"
 MAXOBJECTS = 15
-SPECIAL_RATE = 1.0/10 # frequency of 'specials'
+SPECIAL_RATE = 1.0/3 # frequency of 'specials'
 
 NICECOLORS = [( 255, 255, 0 ), ( 255,0,255), (0,255,255), (255,0,0), (0,255,0), (0,0,255)]
 LETTER_MAP = 'qazwsxedcrfvtgbyhnujmikolp'
 
 class Special:
-  def __init__(self, img, sound):
-    self.img = pygame.image.load(img)
-    self.sound = pygame.mixer.Sound(sound)
+    def __init__(self, img, sound):
+        self.img = pygame.image.load(img)
+        self.sound = None
+        if sound != None:
+            self.sound = pygame.mixer.Sound(sound)
+    def playSound(self):
+        if self.sound != None: self.sound.play()
 
 class SpecialObj:
-  def __init__(self, char, special):
-    print '!!! ', special.img
-    self.special = special
-    self.rect = special.img.get_rect()
-    self.rect.topleft = ((WINDOWWIDTH*.8)*LETTER_MAP.index(char)/len(LETTER_MAP), WINDOWHEIGHT / 2) #TODO: subtract half of special img height, add rnd factor
-
-  def draw(self):
-    windowSurface.blit(self.special.img, self.rect)
+    def __init__(self, char, special):
+        self.special = special
+        self.image = pygame.transform.rotozoom(special.img, random.randint(-30, 30), 2)
+        self.rect = self.image.get_rect()
+        self.rect.topleft = (WINDOWWIDTH*.8)*LETTER_MAP.index(char)/len(LETTER_MAP), random.randint(0, WINDOWHEIGHT - self.rect.height)
+        self.special.playSound()
+    def draw(self):
+        windowSurface.blit(self.image, self.rect)
 
 class Letter:
-  def __init__(self, char):
-    fi = random.randint(0, len(fonts)-1)
-    # FIXME: improve formula to determine max 'left' value
-    self.text = char
-    self.font = fonts[fi]
-    self.left = (WINDOWWIDTH*.8)*LETTER_MAP.index(char)/len(LETTER_MAP)
-    self.top = random.randint(0, WINDOWHEIGHT - fheights[fi])
-    self.color = random.choice(NICECOLORS)
+    def __init__(self, char):
+        fi = random.randint(0, len(fonts)-1)
+        # FIXME: improve formula to determine max 'left' value
+        self.text = char
+        self.font = fonts[fi]
+        self.left = (WINDOWWIDTH*.8)*LETTER_MAP.index(char)/len(LETTER_MAP)
+        self.top = random.randint(0, WINDOWHEIGHT - fheights[fi])
+        self.color = random.choice(NICECOLORS)
 
-  def draw(self):
-    drawText(l.text, l.font, windowSurface, l.left, l.top, l.color)
+    def draw(self):
+        drawText(l.text, l.font, windowSurface, l.left, l.top, l.color)
 
 
 def terminate():
@@ -90,9 +94,21 @@ def addObject(obj, ary):
       ary[0:1] = []
   ary.append(obj)
 
-#print [ x.strip() for x in open('specials').readlines() ]
-# TODO: load specials from specials file
-SPECIALS = [ Special('mama.png', 'mama.ogg') ]
+def loadSpecials():
+    result = []
+    media = [ 'media/' + x for x in os.listdir('media') ]
+    pattern = re.compile('\.png$')
+    for png in filter(lambda x: pattern.search(x), media):
+        ogg = "%s.wav"%png[0:png.rindex('.')]
+        wav = "%s.wav"%png[0:png.rindex('.')]
+        if ogg in media:
+            result.append(Special(png, ogg))
+        elif wav in media:
+            result.append(Special(png, wav))
+        else: result.append(Special(png, None))
+    return result
+
+SPECIALS = loadSpecials()
 
 while True:
     letters = []
