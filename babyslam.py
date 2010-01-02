@@ -11,10 +11,39 @@ IMAGEMAXSIZE = 8
 PLAYERMOVERATE = 5
 ESCAPE_CLAUSE = "babydodo"
 MAXOBJECTS = 15
-SPECIAL_RATE = 10 # 1/SPECIAL_RATE will be special
+SPECIAL_RATE = 1.0/10 # frequency of 'specials'
 
 NICECOLORS = [( 255, 255, 0 ), ( 255,0,255), (0,255,255), (255,0,0), (0,255,0), (0,0,255)]
 LETTER_MAP = 'qazwsxedcrfvtgbyhnujmikolp'
+
+class Special:
+  def __init__(self, img, sound):
+    self.img = pygame.image.load(img)
+    self.sound = pygame.mixer.Sound(sound)
+
+class SpecialObj:
+  def __init__(self, char, special):
+    print '!!! ', special.img
+    self.special = special
+    self.rect = special.img.get_rect()
+    self.rect.topleft = ((WINDOWWIDTH*.8)*LETTER_MAP.index(char)/len(LETTER_MAP), WINDOWHEIGHT / 2) #TODO: subtract half of special img height, add rnd factor
+
+  def draw(self):
+    windowSurface.blit(self.special.img, self.rect)
+
+class Letter:
+  def __init__(self, char):
+    fi = random.randint(0, len(fonts)-1)
+    # FIXME: improve formula to determine max 'left' value
+    self.text = char
+    self.font = fonts[fi]
+    self.left = (WINDOWWIDTH*.8)*LETTER_MAP.index(char)/len(LETTER_MAP)
+    self.top = random.randint(0, WINDOWHEIGHT - fheights[fi])
+    self.color = random.choice(NICECOLORS)
+
+  def draw(self):
+    drawText(l.text, l.font, windowSurface, l.left, l.top, l.color)
+
 
 def terminate():
     pygame.quit()
@@ -56,26 +85,14 @@ sysfont = pygame.font.SysFont(None, 15)
 #playerRect = playerImage.get_rect()
 #baddieImage = pygame.image.load('baddie.png')
 
-class Letter:
-  def __init__(self, char):
-    fi = random.randint(0, len(fonts)-1)
-    # FIXME: improve formula to determine max 'left' value
-    self.text = char
-    self.font = fonts[fi]
-    self.left = (WINDOWWIDTH*.8)*LETTER_MAP.index(char)/len(LETTER_MAP)
-    self.top = random.randint(0, WINDOWHEIGHT - fheights[fi])
-    self.color = random.choice(NICECOLORS)
-
-  def draw(self):
-    drawText(l.text, l.font, windowSurface, l.left, l.top, l.color)
-
-def addLetter(char, ary):
-  letter = Letter(char)
-
+def addObject(obj, ary):
   if len(ary) >= MAXOBJECTS:
       ary[0:1] = []
-  ary.append(letter)
-  print (ary[-1])
+  ary.append(obj)
+
+#print [ x.strip() for x in open('specials').readlines() ]
+# TODO: load specials from specials file
+SPECIALS = [ Special('mama.png', 'mama.ogg') ]
 
 while True:
     letters = []
@@ -95,7 +112,10 @@ while True:
                     escapecnt += 1
 
                 if event.key >= ord('a') and event.key <= ord('z'):
-                    addLetter(chr(event.key), letters)
+                    if random.random() < SPECIAL_RATE:
+                        addObject(SpecialObj(chr(event.key), random.choice(SPECIALS)), letters)
+                    else:
+                        addObject(Letter(chr(event.key)), letters)
 
             if event.type == KEYUP:
                 None
