@@ -11,10 +11,13 @@ IMAGEMAXSIZE = 8
 PLAYERMOVERATE = 5
 ESCAPE_CLAUSE = "babydodo"
 MAXOBJECTS = 15
-SPECIAL_RATE = 1.0/3 # frequency of 'specials'
+SPECIAL_RATE = 1.0/5 # frequency of 'specials'
+RATE_LIMIT = 100 # number of milliseconds between hits
+now = 0
+last_hit = 0
 
 NICECOLORS = [( 255, 255, 0 ), ( 255,0,255), (0,255,255), (255,0,0), (0,255,0), (0,0,255)]
-LETTER_MAP = 'qazwsxedcrfvtgbyhnujmikolp'
+LETTER_MAP = '1qa2zws3xed4crf5vtg6byh7nuj8mik9ol0p'
 
 class Special:
     def __init__(self, img, sound):
@@ -122,12 +125,14 @@ while True:
                 terminate()
 
             if event.type == KEYDOWN:
-                if event.key >= ord('a') and event.key <= ord('z') and ESCAPE_CLAUSE[escapecnt] != chr(event.key):
+                if chr(event.key) in LETTER_MAP and ESCAPE_CLAUSE[escapecnt] != chr(event.key):
                     escapecnt = 0
-                if event.key >= ord('a') and event.key <= ord('z') and ESCAPE_CLAUSE[escapecnt] == chr(event.key):
+                if chr(event.key) in LETTER_MAP and ESCAPE_CLAUSE[escapecnt] == chr(event.key):
                     escapecnt += 1
 
-                if event.key >= ord('a') and event.key <= ord('z'):
+                if chr(event.key) in LETTER_MAP:
+                    if (now - last_hit) > RATE_LIMIT:
+                        continue
                     if random.random() < SPECIAL_RATE:
                         addObject(SpecialObj(chr(event.key), random.choice(SPECIALS)), letters)
                     else:
