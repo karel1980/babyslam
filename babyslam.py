@@ -21,7 +21,8 @@ LETTER_MAP = '1qa2zws3xed4crf5vtg6byh7nuj8mik9ol0p'
 
 class Special:
     def __init__(self, img, sound):
-        self.img = pygame.image.load(img)
+        base_image = pygame.image.load(img)
+        self.image_cache = dict( (x, pygame.transform.rotozoom(base_image, x, 1)) for x in range(-30, 31) )
         self.sound = None
         if sound != None:
             self.sound = pygame.mixer.Sound(sound)
@@ -30,27 +31,52 @@ class Special:
 
 class SpecialObj:
     def __init__(self, char, special):
+        self.t = 0.0
+        self.step = 1.0 / 10 # 10 steps, 1/4 second animation
+        self.base_angle = random.randint(10, 20)
+        self.base_dir = -1 if random.random() > 0.5 else 1
+
         self.special = special
-        self.image = pygame.transform.rotozoom(special.img, random.randint(-30, 30), 2)
-        self.rect = self.image.get_rect()
-        self.rect.topleft = (WINDOWWIDTH*.8)*LETTER_MAP.index(char)/len(LETTER_MAP), random.randint(0, WINDOWHEIGHT - self.rect.height)
         self.special.playSound()
+        self.base_pos = (WINDOWWIDTH*.8)*LETTER_MAP.index(char)/len(LETTER_MAP), random.randint(0, WINDOWHEIGHT - self.special.image_cache[0].get_rect().width)
+
     def draw(self):
         windowSurface.blit(self.image, self.rect)
 
+    def update(self):
+        if self.t > 1:
+            return
+        self.angle = int(1.0 * self.base_angle + self.t * 10 * self.base_dir)
+        self.image = self.special.image_cache[self.angle]
+        self.rect = self.image.get_rect()
+        self.rect.topleft = self.base_pos
+        self.t += self.step
+        print self.t, self.step
+
 class Letter:
     def __init__(self, char):
-        fi = random.randint(0, len(fonts)-1)
+        self.t = 0.0
+        self.step = 1.0 / 10 # 10 steps, 1/4 second animation
+
+        self.char = char
+        self.base_size = random.randint(100, 200)
         # FIXME: improve formula to determine max 'left' value
-        self.text = char
-        self.font = fonts[fi]
-        self.left = (WINDOWWIDTH*.8)*LETTER_MAP.index(char)/len(LETTER_MAP)
-        self.top = random.randint(0, WINDOWHEIGHT - fheights[fi])
         self.color = random.choice(NICECOLORS)
+        left = (WINDOWWIDTH*.8)*LETTER_MAP.index(char)/len(LETTER_MAP)
+        top = random.randint(0, WINDOWHEIGHT - self.base_size)
+        self.base_pos = (left, top)
 
     def draw(self):
-        drawText(l.text, l.font, windowSurface, l.left, l.top, l.color)
+        #TODO: drawTextCenter(text, font, surf, pos, color)
+        drawText(self.char, self.font, windowSurface, self.pos[0], self.pos[1], self.color)
 
+    def update(self):
+        if self.t > 1.0:
+            return
+        font_size = 1.0 * self.base_size * (1.25 - 0.25 * (2*(self.t - 0.5))**2)
+        self.font = font_cache[int(font_size)]
+        self.pos = self.base_pos
+        self.t += self.step
 
 def terminate():
     pygame.quit()
@@ -82,15 +108,10 @@ windowSurface = pygame.display.set_mode(firstmode, pygame.FULLSCREEN)
 pygame.display.set_caption('Babyslam')
 #pygame.mouse.set_visible(False)
 
-# set up fonts
-fheights = [ 80, 160, 240 ]
-fonts = [ pygame.font.SysFont(None, x) for x in fheights ]
+# create font cache (sizes 100 to 300)
+font_cache = dict( (x, pygame.font.SysFont(None, x)) for x in range(100, 300) )
+#print font_cache.keys()
 sysfont = pygame.font.SysFont(None, 15)
-
-# set up images
-#playerImage = pygame.image.load('player.png')
-#playerRect = playerImage.get_rect()
-#baddieImage = pygame.image.load('baddie.png')
 
 def addObject(obj, ary):
   if len(ary) >= MAXOBJECTS:
@@ -125,12 +146,12 @@ while True:
                 terminate()
 
             if event.type == KEYDOWN:
-                if chr(event.key) in LETTER_MAP and ESCAPE_CLAUSE[escapecnt] != chr(event.key):
+                if event.key in range(256) and chr(event.key) in LETTER_MAP and ESCAPE_CLAUSE[escapecnt] != chr(event.key):
                     escapecnt = 0
-                if chr(event.key) in LETTER_MAP and ESCAPE_CLAUSE[escapecnt] == chr(event.key):
+                if event.key in range(256) and chr(event.key) in LETTER_MAP and ESCAPE_CLAUSE[escapecnt] == chr(event.key):
                     escapecnt += 1
 
-                if chr(event.key) in LETTER_MAP:
+                if event.key in range(256) and chr(event.key) in LETTER_MAP:
                     if (now - last_hit) > RATE_LIMIT:
                         continue
                     if random.random() < SPECIAL_RATE:
@@ -152,6 +173,7 @@ while True:
         drawText('type %s to quit'%ESCAPE_CLAUSE, sysfont, windowSurface, 0, 0)
         # Draw the letters
         for l in letters:
+            l.update()
             l.draw()
 
         pygame.display.update()
