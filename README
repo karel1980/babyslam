@@ -45,5 +45,5 @@ To quit, type 'babydodo' (the so called 'escape clause' is always noted in the t
  - patches to the same address (or fork and send pull requests).
 
 == WANTED
- - Someone with experience with packaging pygame games (deb,rpm,exe,...)
+ - Someone with experience with packaging pygame games (deb,rpm,exe,... - dependencies: python-pygame, (future) python-gconf2 // what about windows variant?)
  - Send all your patches/question/feedback to karel.vervaeke(AT)telenet.be
