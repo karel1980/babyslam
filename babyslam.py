@@ -29,7 +29,7 @@ ESCAPE_CLAUSE = "babydodo"
 MAXOBJECTS = 15
 SPECIAL_RATE = 1.0/5 # frequency of 'specials'
 RATE_LIMIT = 100 # number of milliseconds between hits
-last_hit = 0
+last_hit = time.time() * 1000 # time in millis
 
 NICECOLORS = [( 255, 255, 0 ), ( 255,0,255), (0,255,255), (255,0,0), (0,255,0), (0,0,255)]
 symbols = 'abcdefghijklmnopqrstuvwxyz1234567890'
@@ -204,16 +204,13 @@ while True:
                     escapecnt += 1
 
                 now = time.time() * 1000 # time in millis
-                if (now - last_hit) < RATE_LIMIT:
+                if (now - last_hit) > RATE_LIMIT:
                     last_hit = now
-                    continue
-
-                
-                char = chr(event.key) if event.key in range(256) and chr(event.key) in symbols else random.choice(symbols)
-                if random.random() < SPECIAL_RATE:
-                    addObject(SpecialObj(char, random.choice(SPECIALS)), letters)
-                else:
-                    addObject(Letter(char), letters)
+                    char = chr(event.key) if event.key in range(256) and chr(event.key) in symbols else random.choice(symbols)
+                    if random.random() < SPECIAL_RATE:
+                        addObject(SpecialObj(char, random.choice(SPECIALS)), letters)
+                    else:
+                        addObject(Letter(char), letters)
 
             if event.type == KEYUP:
                 None
