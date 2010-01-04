@@ -52,7 +52,6 @@ class SpecialObj:
         self.rect = self.image.get_rect()
         self.rect.center = self.center
         self.t += self.step
-        print self.t, self.step
 
 class Letter:
     def __init__(self, char):
