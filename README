@@ -47,3 +47,13 @@ To quit, type 'babydodo' (the so called 'escape clause' is always noted in the t
 == WANTED
  - Someone with experience with packaging pygame games (deb,rpm,exe,... - dependencies: python-pygame, (future) python-gconf2 // what about windows variant?)
  - Send all your patches/question/feedback to karel.vervaeke(AT)telenet.be
+
+== NOTES
+Please ignore this.  They are just random scribbles
+ - pygame2exe!
+ - conf module
+     linux -> import gconf
+     windows (python<3.0) -> import _winreg
+     windows (python>=3.0) -> import winreg
+     mac -> ??
+ - icon for packaged installer / add to start menu for different platforms
