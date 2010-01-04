@@ -38,7 +38,8 @@ class SpecialObj:
 
         self.special = special
         self.special.playSound()
-        self.base_pos = (WINDOWWIDTH*.8)*LETTER_MAP.index(char)/len(LETTER_MAP), random.randint(0, WINDOWHEIGHT - self.special.image_cache[0].get_rect().width)
+        w,h = special.image_cache[0].get_rect().size
+        self.center = w/2 + (WINDOWWIDTH - w)*LETTER_MAP.index(char)/len(LETTER_MAP), random.randint(h/2, WINDOWHEIGHT - h)
 
     def draw(self):
         windowSurface.blit(self.image, self.rect)
@@ -49,7 +50,7 @@ class SpecialObj:
         self.angle = int(1.0 * self.base_angle + self.t * 10 * self.base_dir)
         self.image = self.special.image_cache[self.angle]
         self.rect = self.image.get_rect()
-        self.rect.topleft = self.base_pos
+        self.rect.center = self.center
         self.t += self.step
         print self.t, self.step
 
