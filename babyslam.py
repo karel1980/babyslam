@@ -2,6 +2,7 @@ import pygame, random, sys, os, re
 from pygame.locals import *
 
 TEXTCOLOR = (255, 255, 255)
+OUTLINECOLOR = (255, 255, 255)
 BACKGROUNDCOLOR = (0, 0, 0)
 FPS = 40
 LETTERMINSIZE = 10
@@ -70,7 +71,7 @@ class Letter:
 
     def draw(self):
         #TODO: drawTextCenter(text, font, surf, pos, color)
-        drawText(self.char, self.font, windowSurface, self.pos[0], self.pos[1], self.color)
+        drawTextOutline(self.char, self.font, windowSurface, self.pos[0], self.pos[1], self.color)
 
     def update(self):
         if self.t > 1.0:
@@ -100,6 +101,16 @@ def drawText(text, font, surface, x, y, color = TEXTCOLOR):
     textrect = textobj.get_rect()
     textrect.topleft = (x, y)
     surface.blit(textobj, textrect)
+
+# cheap but reasonaly effective way to render 1-pixel outlines
+def drawTextOutline(text, font, surface, x, y, color = TEXTCOLOR, outline_color = OUTLINECOLOR):
+    base_out = font.render(text, 0, outline_color)
+    base_in = font.render(text, 0, color)
+    surface.blit(base_out, (x-1,y-1))
+    surface.blit(base_out, (x-1,y+1))
+    surface.blit(base_out, (x+1,y-1))
+    surface.blit(base_out, (x+1,y+1))
+    surface.blit(base_in, (x,y))
 
 # set up pygame, the window, and the mouse cursor
 # todo: full screen
