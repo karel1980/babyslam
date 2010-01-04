@@ -75,7 +75,8 @@ class Letter:
     def update(self):
         if self.t > 1.0:
             return
-        font_size = 1.0 * self.base_size * (1.25 - 0.25 * (2*(self.t - 0.5))**2)
+        t2 = 1.25 - 0.25 * (2*(self.t - 0.5)) # 0...1...0 parabolic
+        font_size = 1.0 * self.base_size * t2
         self.font = font_cache[int(font_size)]
         self.pos = self.base_pos
         self.t += self.step
