@@ -1,27 +1,35 @@
+== INTRODUCTION
 
-This program is intendet to let baby's slam away on the computer's keyboard
+This program is intended to let baby's slam away on the computer's keyboard
 without being able to break stuff.
 
-Laptop owners beware: Slamming the laptop keyboard kills laptop hard drives.  Buy a cheap keyboard and give that to the baby.
-Make sure the keyboard is not on the same surface.
+Laptop owners beware: Slamming the laptop keyboard kills hard drives.  Buy a cheap keyboard and give that to the baby.
+Make sure the keyboard is not on the same surface (vibrations still get to the laptop's hard drive if it's on the same surface).
 
+I am not responsible for any damage this program or your baby deliver to your computer.
+
+== INSTALLATION
+
+git clone git@github.com:karel1980@
+
+== USAGE
 To run the program, execute 'python babyslam.py'
 
 To quit, type 'babydodo' (the so called 'escape clause' is always noted in the top-left corner)
 
-CUSTOMIZING
+== CUSTOMIZING
  - You can change the escape clause by editing babyslam.py (todo:
  - You can add images / sounds by dumping png and wav/ogg files in media/.  A nice example
    is to add a picture of mom and dad (mom.png, dad.png & matching audio file (mom.wav, dad.wav))
 
-COST
- - It's free as in love in the sixties, however, if you (and your baby) really enjoy the program send a postcard to:
+== COST
+ - This program is free as in love in the sixties.  However, if you (and your baby) really enjoy the program send a postcard to:
      Outerthought - Karel Vervaeke
      Technologiepark 3
      9052 Zwijnaarde
      Belgium
 
-TODO
+== TODO
  - babyslam can still be killed using ctrl-C(?)
  - babyslam can still be killed using ctrl-alt-backspace (or whatever keystroke you use to kill X on your machine)
  - babyslam only responds to letters and numbers.  Babies tend to go for the perimeter keys (like control, esc, enter, keypad arrows, space, ...) hence we should respond to those as well
@@ -32,9 +40,10 @@ TODO
  - (low priority) other media types (jpeg, gif, mp3, ...)?
  - package (deb and rpm for linux, zip/exe for windows, does pygame support mac?)
 
-BUGS
- - none (just kidding, report them to karel.vervaeke(AT)telenet.be).  Patches to the same address.
+== BUGS
+ - none (just kidding, report them to karel.vervaeke(AT)telenet.be).
+ - patches to the same address (or fork and send pull requests).
 
-WANTED:
-- Someone with experience with packaging pygame games (deb,rpm,exe,...)
-- Send all your patches to karel.vervaeke(AT)telenet.be
+== WANTED
+ - Someone with experience with packaging pygame games (deb,rpm,exe,...)
+ - Send all your patches/question/feedback to karel.vervaeke(AT)telenet.be
