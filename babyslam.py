@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import pygame, random, sys, os, re
 from pygame.locals import *
 
@@ -150,9 +151,11 @@ def addObject(obj, ary):
 
 def loadSpecials():
     result = []
-    media = [ 'media/' + x for x in os.listdir('media') ]
+    path = sys.path[0] + '/media'
+    media = [ path + '/' + x for x in os.listdir(path) ]
     pattern = re.compile('\.png$')
     for png in filter(lambda x: pattern.search(x), media):
+        #clumsy!
         ogg = "%s.wav"%png[0:png.rindex('.')]
         wav = "%s.wav"%png[0:png.rindex('.')]
         if ogg in media:
@@ -163,6 +166,8 @@ def loadSpecials():
     return result
 
 SPECIALS = loadSpecials()
+if len(SPECIALS)==0:
+    sys.exit(0)
 
 while True:
     letters = []
