@@ -18,7 +18,7 @@ now = 0
 last_hit = 0
 
 NICECOLORS = [( 255, 255, 0 ), ( 255,0,255), (0,255,255), (255,0,0), (0,255,0), (0,0,255)]
-LETTER_MAP = '1qa2zws3xed4crf5vtg6byh7nuj8mik9ol0p'
+symbols = 'abcdefghijklmnopqrstuvwxyz1234567890'
 
 class Special:
     def __init__(self, img, sound):
@@ -35,12 +35,12 @@ class SpecialObj:
         self.t = 0.0
         self.step = 1.0 / 10 # 10 steps, 1/4 second animation
         self.base_angle = random.randint(10, 20)
-        self.base_dir = -1 if random.random() > 0.5 else 1
+        self.base_dir = -1 if random.random() < 0.5 else 1
 
         self.special = special
         self.special.playSound()
         w,h = special.image_cache[0].get_rect().size
-        self.center = w/2 + (WINDOWWIDTH - w)*LETTER_MAP.index(char)/len(LETTER_MAP), random.randint(h/2, WINDOWHEIGHT - h)
+        self.center = random.randint(w/2, WINDOWWIDTH - w/2), random.randint(h/2, WINDOWHEIGHT - h/2)
 
     def draw(self):
         windowSurface.blit(self.image, self.rect)
@@ -69,7 +69,8 @@ class Letter:
         base_surface = createText(self.char, font_cache[int(self.base_size)])
         base_rect = base_surface.get_rect()
 
-        self.center = base_rect.width/2 + (WINDOWWIDTH - base_rect.width/2)*LETTER_MAP.index(char)/len(LETTER_MAP), random.randint(base_rect.width/2, WINDOWHEIGHT - base_rect.height/2)
+        w,h = base_rect.width, base_rect.height
+        self.center = random.randint(w/2, WINDOWWIDTH - w/2), random.randint(h/2, WINDOWHEIGHT - h/2)
 
     def draw(self):
         #TODO: drawTextCenter(text, font, surf, pos, color)
@@ -135,10 +136,10 @@ firstmode = pygame.display.list_modes()[0]
 WINDOWWIDTH, WINDOWHEIGHT = firstmode
 windowSurface = pygame.display.set_mode(firstmode, pygame.FULLSCREEN)
 pygame.display.set_caption('Babyslam')
-#pygame.mouse.set_visible(False)
+pygame.mouse.set_visible(False)
 
 # create font cache (sizes 100 to 300)
-font_cache = dict( (x, pygame.font.SysFont(None, x)) for x in range(100, 300) )
+font_cache = dict( (x, pygame.font.SysFont(None, x)) for x in range(100, 301) )
 #print font_cache.keys()
 sysfont = pygame.font.SysFont(None, 15)
 
@@ -175,18 +176,20 @@ while True:
                 terminate()
 
             if event.type == KEYDOWN:
-                if event.key in range(256) and chr(event.key) in LETTER_MAP and ESCAPE_CLAUSE[escapecnt] != chr(event.key):
+                if event.key in range(256) and chr(event.key) in symbols and ESCAPE_CLAUSE[escapecnt] != chr(event.key):
                     escapecnt = 0
-                if event.key in range(256) and chr(event.key) in LETTER_MAP and ESCAPE_CLAUSE[escapecnt] == chr(event.key):
+                if event.key in range(256) and chr(event.key) in symbols and ESCAPE_CLAUSE[escapecnt] == chr(event.key):
                     escapecnt += 1
 
-                if event.key in range(256) and chr(event.key) in LETTER_MAP:
-                    if (now - last_hit) > RATE_LIMIT:
-                        continue
-                    if random.random() < SPECIAL_RATE:
-                        addObject(SpecialObj(chr(event.key), random.choice(SPECIALS)), letters)
-                    else:
-                        addObject(Letter(chr(event.key)), letters)
+                if (now - last_hit) > RATE_LIMIT:
+                    continue
+
+                
+                char = chr(event.key) if event.key in range(256) and chr(event.key) in symbols else random.choice(symbols)
+                if random.random() < SPECIAL_RATE:
+                    addObject(SpecialObj(char, random.choice(SPECIALS)), letters)
+                else:
+                    addObject(Letter(char), letters)
 
             if event.type == KEYUP:
                 None
