@@ -65,13 +65,24 @@ class Letter:
         self.base_size = random.randint(100, 200)
         # FIXME: improve formula to determine max 'left' value
         self.color = random.choice(NICECOLORS)
-        left = (WINDOWWIDTH*.8)*LETTER_MAP.index(char)/len(LETTER_MAP)
-        top = random.randint(0, WINDOWHEIGHT - self.base_size)
-        self.base_pos = (left, top)
+
+        base_surface = createText(self.char, font_cache[int(self.base_size)])
+        base_rect = base_surface.get_rect()
+
+        self.center = base_rect.width/2 + (WINDOWWIDTH - base_rect.width/2)*LETTER_MAP.index(char)/len(LETTER_MAP), random.randint(base_rect.width/2, WINDOWHEIGHT - base_rect.height/2)
 
     def draw(self):
         #TODO: drawTextCenter(text, font, surf, pos, color)
-        drawTextOutline(self.char, self.font, windowSurface, self.pos[0], self.pos[1], self.color)
+        text = createText(self.char, self.font, self.color)
+        outline = createText(self.char, self.font, OUTLINECOLOR)
+        r = text.get_rect()
+        r.center = self.center
+        x,y = r.x, r.y
+        windowSurface.blit(outline, (x-1,y-1))
+        windowSurface.blit(outline, (x-1,y+1))
+        windowSurface.blit(outline, (x+1,y-1))
+        windowSurface.blit(outline, (x+1,y+1))
+        windowSurface.blit(text, (x,y))
 
     def update(self):
         if self.t > 1.0:
@@ -79,7 +90,6 @@ class Letter:
         t2 = 1.25 - 0.25 * (2*(self.t - 0.5)) # 0...1...0 parabolic
         font_size = 1.0 * self.base_size * t2
         self.font = font_cache[int(font_size)]
-        self.pos = self.base_pos
         self.t += self.step
 
 def terminate():
@@ -96,21 +106,26 @@ def waitForPlayerToPressKey():
                     terminate()
                 return
 
-def drawText(text, font, surface, x, y, color = TEXTCOLOR):
+def drawText(text, font, surface, x, y, color = TEXTCOLOR, center = False):
     textobj = font.render(text, 1, color)
-    textrect = textobj.get_rect()
-    textrect.topleft = (x, y)
-    surface.blit(textobj, textrect)
+    if center:
+      x,y = x-textobj.width/2,y-textobj.height/2
+    surface.blit(textobj, (x, y))
 
-# cheap but reasonaly effective way to render 1-pixel outlines
-def drawTextOutline(text, font, surface, x, y, color = TEXTCOLOR, outline_color = OUTLINECOLOR):
+# cheap but effective way to render 1-pixel outlines
+def drawTextOutline(text, font, surface, x, y, color = TEXTCOLOR, outline_color = OUTLINECOLOR, center = False):
     base_out = font.render(text, 0, outline_color)
     base_in = font.render(text, 0, color)
+    if center:
+      x,y = x-textobj.width/2,y-textobj.height/2
     surface.blit(base_out, (x-1,y-1))
     surface.blit(base_out, (x-1,y+1))
     surface.blit(base_out, (x+1,y-1))
     surface.blit(base_out, (x+1,y+1))
     surface.blit(base_in, (x,y))
+
+def createText(text, font, color = TEXTCOLOR):
+    return font.render(text, 0, color)
 
 # set up pygame, the window, and the mouse cursor
 # todo: full screen
