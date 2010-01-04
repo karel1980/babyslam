@@ -6,14 +6,15 @@ without being able to break stuff.
 Laptop owners beware: Slamming the laptop keyboard kills hard drives.  Buy a cheap keyboard and give that to the baby.
 Make sure the keyboard is not on the same surface (vibrations still get to the laptop's hard drive if it's on the same surface).
 
-I am not responsible for any damage this program or your baby deliver to your computer.
+I am not responsible for any damage this program or your baby delivers to your computer.
 
 == INSTALLATION
 
 git clone git://github.com/karel1980/babyslam.git
+cd babyslam
 
 == USAGE
-To run the program, execute 'python babyslam.py'
+To the program, execute './babyslam.py'
 
 To quit, type 'babydodo' (the so called 'escape clause' is always noted in the top-left corner)
 
@@ -30,15 +31,13 @@ To quit, type 'babydodo' (the so called 'escape clause' is always noted in the t
      Belgium
 
 == TODO
- - babyslam can still be killed using ctrl-C(?)
- - babyslam can still be killed using ctrl-alt-backspace (or whatever keystroke you use to kill X on your machine)
- - babyslam only responds to letters and numbers.  Babies tend to go for the perimeter keys (like control, esc, enter, keypad arrows, space, ...) hence we should respond to those as well
- - set up a proper site & documentation (docs may include
+ - set up a proper site & documentation
  - work with 'sets' of images - e.g. 'shapes', 'family', 'animals', 'colors', ...
  - separate program for making configuration changes (escape clause, configuring which sets to use, ...)
  - ogg support is untested, but should work.
  - (low priority) other media types (jpeg, gif, mp3, ...)?
- - package (deb and rpm for linux, zip/exe for windows, does pygame support mac?)
+ - support windows & mac
+ - package (deb and rpm for linux, zip/exe for windows, pkg (or whatever is the preferred mac packaging mechanism nowadays))
 
 == BUGS
  - none (just kidding, report them to karel.vervaeke(AT)telenet.be).

@@ -1,6 +1,20 @@
 #!/usr/bin/env python
-import pygame, random, sys, os, re
+import pygame, random, sys, os, re, time, getopt
 from pygame.locals import *
+
+dev_mode = False
+try:
+    opts, args = getopt.getopt(sys.argv[1:], "d", ["dev"])
+except getopt.GetoptError, err:
+    # print help information and exit:
+    print str(err) # will print something like "option -a not recognized"
+    usage()
+    sys.exit(2)
+output = None
+verbose = False
+for o, a in opts:
+    if o == "-d":
+        dev_mode = True
 
 TEXTCOLOR = (255, 255, 255)
 OUTLINECOLOR = (255, 255, 255)
@@ -15,7 +29,6 @@ ESCAPE_CLAUSE = "babydodo"
 MAXOBJECTS = 15
 SPECIAL_RATE = 1.0/5 # frequency of 'specials'
 RATE_LIMIT = 100 # number of milliseconds between hits
-now = 0
 last_hit = 0
 
 NICECOLORS = [( 255, 255, 0 ), ( 255,0,255), (0,255,255), (255,0,0), (0,255,0), (0,0,255)]
@@ -130,12 +143,16 @@ def createText(text, font, color = TEXTCOLOR):
     return font.render(text, 0, color)
 
 # set up pygame, the window, and the mouse cursor
-# todo: full screen
 pygame.init()
 mainClock = pygame.time.Clock()
 firstmode = pygame.display.list_modes()[0]
-WINDOWWIDTH, WINDOWHEIGHT = firstmode
-windowSurface = pygame.display.set_mode(firstmode, pygame.FULLSCREEN)
+mode = WINDOWWIDTH, WINDOWHEIGHT = firstmode
+if dev_mode:
+    mode = WINDOWWIDTH, WINDOWHEIGHT = 640,480
+    windowSurface = pygame.display.set_mode(mode, pygame.NOFRAME)
+else:
+    windowSurface = pygame.display.set_mode(mode, pygame.FULLSCREEN)
+  
 pygame.display.set_caption('Babyslam')
 pygame.mouse.set_visible(False)
 
@@ -186,7 +203,9 @@ while True:
                 if event.key in range(256) and chr(event.key) in symbols and ESCAPE_CLAUSE[escapecnt] == chr(event.key):
                     escapecnt += 1
 
-                if (now - last_hit) > RATE_LIMIT:
+                now = time.time() * 1000 # time in millis
+                if (now - last_hit) < RATE_LIMIT:
+                    last_hit = now
                     continue
 
                 
