@@ -10,7 +10,7 @@ I am not responsible for any damage this program or your baby deliver to your co
 
 == INSTALLATION
 
-git clone git@github.com:karel1980@
+git clone git://github.com/karel1980/babyslam.git
 
 == USAGE
 To run the program, execute 'python babyslam.py'
