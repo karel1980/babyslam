@@ -47,7 +47,9 @@ class SpecialObj:
     def update(self):
         if self.t > 1:
             return
-        self.angle = int(1.0 * self.base_angle + self.t * 10 * self.base_dir)
+
+        t2 = 1 - (1 - self.t)**2 # self.t = linear 0..1, self.t2 = ease-out 0..1
+        self.angle = int(1.0 * self.base_angle + t2 * 10 * self.base_dir)
         self.image = self.special.image_cache[self.angle]
         self.rect = self.image.get_rect()
         self.rect.center = self.center
