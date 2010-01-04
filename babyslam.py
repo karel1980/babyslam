@@ -22,14 +22,13 @@ NICECOLORS = [( 255, 255, 0 ), ( 255,0,255), (0,255,255), (255,0,0), (0,255,0), 
 symbols = 'abcdefghijklmnopqrstuvwxyz1234567890'
 
 class Special:
-    def __init__(self, img, sound):
+    def __init__(self, img, sounds):
         base_image = pygame.image.load(img)
         self.image_cache = dict( (x, pygame.transform.rotozoom(base_image, x, 1)) for x in range(-30, 31) )
-        self.sound = None
-        if sound != None:
-            self.sound = pygame.mixer.Sound(sound)
+        self.sound_cache = [ pygame.mixer.Sound(sound) for sound in sounds ]
+
     def playSound(self):
-        if self.sound != None: self.sound.play()
+        if len(self.sound_cache) > 0: random.choice(self.sound_cache).play()
 
 class SpecialObj:
     def __init__(self, char, special):
@@ -152,17 +151,14 @@ def addObject(obj, ary):
 def loadSpecials():
     result = []
     path = sys.path[0] + '/media'
-    media = [ path + '/' + x for x in os.listdir(path) ]
-    pattern = re.compile('\.png$')
-    for png in filter(lambda x: pattern.search(x), media):
-        #clumsy!
-        ogg = "%s.wav"%png[0:png.rindex('.')]
-        wav = "%s.wav"%png[0:png.rindex('.')]
-        if ogg in media:
-            result.append(Special(png, ogg))
-        elif wav in media:
-            result.append(Special(png, wav))
-        else: result.append(Special(png, None))
+    files =  os.listdir(path)
+    png_pattern = re.compile('\.png$')
+    sounds = []
+    for png in filter(lambda x: png_pattern.search(x), files):
+        #crappy code. could be more efficient and more readable
+        base = png[0:png.rindex('.')]
+        sounds = filter(lambda x: x in [ base+'.'+ext for ext in ['wav','ogg']] or (x.startswith(base + '_') and (x.endswith('.ogg') or x.endswith('.wav'))), files)
+        result.append(Special(path+'/'+png, [ path+'/'+x for x in sounds ]))
     return result
 
 SPECIALS = loadSpecials()
