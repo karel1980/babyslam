@@ -52,7 +52,10 @@ class SpecialObj:
 
         self.special = special
         self.special.playSound()
-        w,h = special.image_cache[0].get_rect().size
+        #using cache
+        #w,h = special.image_cache[0].get_rect().size
+        #not using cache
+        w, h = special.image.get_rect().size()
         self.center = random.randint(w/2, WINDOWWIDTH - w/2), random.randint(h/2, WINDOWHEIGHT - h/2)
 
     def draw(self):
@@ -64,7 +67,10 @@ class SpecialObj:
 
         t2 = 1 - (1 - self.t)**2 # self.t = linear 0..1, self.t2 = ease-out 0..1
         self.angle = int(1.0 * self.base_angle + t2 * 10 * self.base_dir)
-        self.image = self.special.image_cache[self.angle]
+        #using cache
+        #self.image = self.special.image_cache[self.angle]
+        #not using cache
+        self.image = pygame.transform.rotozoom(base_image, self.angle, 1)
         self.rect = self.image.get_rect()
         self.rect.center = self.center
         self.t += self.step
@@ -150,7 +156,10 @@ if dev_mode:
     mode = WINDOWWIDTH, WINDOWHEIGHT = 640,480
     windowSurface = pygame.display.set_mode(mode, pygame.NOFRAME)
 else:
+    #without opengl
     windowSurface = pygame.display.set_mode(mode, pygame.FULLSCREEN)
+    #with opengl
+    #windowSurface = pygame.display.set_mode(mode, pygame.FULLSCREEN | pygame.OPENGL)
   
 pygame.display.set_caption('Babyslam')
 pygame.mouse.set_visible(False)
