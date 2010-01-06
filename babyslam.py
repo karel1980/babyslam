@@ -28,7 +28,7 @@ PLAYERMOVERATE = 5
 ESCAPE_CLAUSE = "babydodo"
 MAXOBJECTS = 15
 SPECIAL_RATE = 1.0/5 # frequency of 'specials'
-RATE_LIMIT = 100 # number of milliseconds between hits
+RATE_LIMIT = 0 # minimum number of milliseconds between hits
 last_hit = time.time() * 1000 # time in millis
 
 NICECOLORS = [( 255, 255, 0 ), ( 255,0,255), (0,255,255), (255,0,0), (0,255,0), (0,0,255)]
@@ -47,7 +47,7 @@ class SpecialObj:
     def __init__(self, char, special):
         self.t = 0.0
         self.step = 1.0 / 10 # 10 steps, 1/4 second animation
-        self.base_angle = random.randint(10, 20)
+        self.base_angle = random.randint(-20, 20)
         self.base_dir = -1 if random.random() < 0.5 else 1
 
         self.special = special
