@@ -2,9 +2,10 @@
 import pygame, random, sys, os, re, time, getopt
 from pygame.locals import *
 
-dev_mode = False
+mode_res = None
+mode_flags = pygame.FULLSCREEN
 try:
-    opts, args = getopt.getopt(sys.argv[1:], "d", ["dev"])
+    opts, args = getopt.getopt(sys.argv[1:], "dr:", ["dev", "resolution"])
 except getopt.GetoptError, err:
     # print help information and exit:
     print str(err) # will print something like "option -a not recognized"
@@ -14,7 +15,11 @@ output = None
 verbose = False
 for o, a in opts:
     if o == "-d":
-        dev_mode = True
+        mode_flags = pygame.NOFRAME #todo: look up flag for frame, there's no point in not having a frame
+        mode_res = (800,600) if mode_res is None else mode_res
+    if o == "-r":
+        #TODO: validate that arg is in \d+x\d+ pattern
+        mode_res = tuple([ int(x) for x in a.split("x")])
 
 TEXTCOLOR = (255, 255, 255)
 OUTLINECOLOR = (255, 255, 255)
@@ -151,17 +156,12 @@ def createText(text, font, color = TEXTCOLOR):
 # set up pygame, the window, and the mouse cursor
 pygame.init()
 mainClock = pygame.time.Clock()
-firstmode = pygame.display.list_modes()[0]
-mode = WINDOWWIDTH, WINDOWHEIGHT = firstmode
-if dev_mode:
-    mode = WINDOWWIDTH, WINDOWHEIGHT = 640,480
-    windowSurface = pygame.display.set_mode(mode, pygame.NOFRAME)
-else:
-    #without opengl
-    #windowSurface = pygame.display.set_mode(mode, pygame.FULLSCREEN)
-    #with opengl
-    windowSurface = pygame.display.set_mode(mode, pygame.FULLSCREEN | pygame.OPENGL)
-  
+
+mode_res = pygame.display.list_modes()[0] if mode_res is None else mode_res
+print mode_res
+WINDOWWIDTH, WINDOWHEIGHT = mode_res
+windowSurface = pygame.display.set_mode(mode_res, mode_flags)
+
 pygame.display.set_caption('Babyslam')
 pygame.mouse.set_visible(False)
 
