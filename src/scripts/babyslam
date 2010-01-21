@@ -1,6 +1,7 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 import pygame, random, sys, os, re, time, getopt
 from pygame.locals import *
+import babyslam
 
 dev_mode = False
 try:
@@ -15,6 +16,7 @@ verbose = False
 for o, a in opts:
     if o == "-d":
         dev_mode = True
+
 
 TEXTCOLOR = (255, 255, 255)
 OUTLINECOLOR = (255, 255, 255)
@@ -167,7 +169,7 @@ def addObject(obj, ary):
 
 def loadSpecials():
     result = []
-    path = sys.path[0] + '/media'
+    path = os.path.join(babyslam.__path__[0], 'media')
     files =  os.listdir(path)
     png_pattern = re.compile('\.png$')
     sounds = []
@@ -179,8 +181,7 @@ def loadSpecials():
     return result
 
 SPECIALS = loadSpecials()
-if len(SPECIALS)==0:
-    sys.exit(0)
+print "INFO: Found %d images in media dir"%(len(SPECIALS))
 
 while True:
     letters = []
