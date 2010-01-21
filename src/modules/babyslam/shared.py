@@ -1,0 +1,17 @@
+
+TEXTCOLOR = (255, 255, 255)
+OUTLINECOLOR = (255, 255, 255)
+BACKGROUNDCOLOR = (0, 0, 0)
+
+FPS = 40
+LETTERMINSIZE = 10
+LETTERMAXSIZE = 40
+IMAGEMINSIZE = 1
+IMAGEMAXSIZE = 8
+PLAYERMOVERATE = 5
+ESCAPE_CLAUSE = "babydodo"
+MAXOBJECTS = 15
+SPECIAL_RATE = 1.0/5 # frequency of 'specials'
+RATE_LIMIT = 0 # minimum number of milliseconds between hits
+NICECOLORS = [( 255, 255, 0 ), ( 255,0,255), (0,255,255), (255,0,0), (0,255,0), (0,0,255)]
+
