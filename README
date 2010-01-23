@@ -12,11 +12,16 @@ I am not responsible for any damage this program or your baby delivers to your c
 
 git clone git://github.com/karel1980/babyslam.git
 cd babyslam
+sudo python setup.py install
+
+== RUNNING
+To the program, execute 'babyslam' (installed in /usr/local/bin with the commands under 'INSTALLATION'
+
+Running from source (./src/script/babyslam) is not possible at the moment (sorry)
 
 == USAGE
-To the program, execute './babyslam.py'
-
-To quit, type 'babydodo' (the so called 'escape clause' is always noted in the top-left corner)
+To quit, type 'babydodo' (this so called 'escape clause' is always noted in the top-left corner,
+later you will be able to set your own escape clause).
 
 == CUSTOMIZING
  - You can change the escape clause by editing babyslam.py (todo:
