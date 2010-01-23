@@ -101,8 +101,10 @@ while True:
                 if (now - last_hit) > shared.RATE_LIMIT:
                     last_hit = now
                     char = chr(event.key) if event.key in range(256) and chr(event.key) in symbols else random.choice(symbols)
-                    if random.random() < shared.SPECIAL_RATE:
-                        #addObject(effects.SpecialObj(char, random.choice(SPECIALS)), letters)
+                    select = random.random()
+                    if select < 0.1:
+                        addObject(effects.SpecialObj(char, random.choice(SPECIALS)), letters)
+                    elif select < 0.2:
                         addObject(effects.Flip(char, random.choice(SPECIALS)), letters)
                     else:
                         addObject(effects.Letter(char), letters)
