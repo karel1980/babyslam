@@ -37,6 +37,58 @@ class SpecialObj:
         self.rect.center = self.center
         self.t += self.step
 
+class Flip:
+    def __init__(self, char, special):
+        self.t = 0.0
+        self.step = 1.0 / 40 # 1 second animation
+        self.base_angle = random.randint(-20, 20)
+        self.base_dir = -1 if random.random() < 0.5 else 1
+
+        self.special = special
+        self.special.playSound()
+
+        size = special.image_cache[0].get_rect().size
+        # make a 3:2 rect:
+        border = 20
+        rect = pygame.Rect(0, 0, int(max(size[1] * 3 / 2, size[0])), int(max(size[0] * 2 / 3, size[1]))).inflate(border, border)
+        self.back = pygame.Surface(rect.size)
+        self.back.fill(random.choice(shared.NICECOLORS))
+        self.back.fill(random.choice(shared.NICECOLORS), self.back.get_rect().inflate(-border,-border))
+
+        self.front = special.image_cache[0] # replace with solid fill (add 0.2 border, superimpose image)
+        w,h = self.front.get_rect().size
+        self.center = random.randint(w/2, shared.WINDOWWIDTH - w/2), random.randint(h/2, shared.WINDOWHEIGHT - h/2)
+
+    def draw(self):
+        rect = self.image.get_rect()
+        rect.center = self.center
+        shared.windowSurface.blit(self.image, rect)
+
+    def update(self):
+        if self.t > 1:
+            return
+
+        if self.t < 0.2:
+          self.image = pygame.transform.rotozoom(self.back, self.base_angle, 1)
+        elif self.t < 0.5:
+          t2 = 1 - (self.t-0.2)/0.3 # linear from [1, 0[ between t=0.2 and t=0.5
+          width = int(self.back.get_rect().width * t2)
+          width = width if width > 0 else 1
+          height = self.back.get_rect().height
+          self.image = pygame.transform.scale(self.back, (width, height))
+          self.image = pygame.transform.rotozoom(self.image, self.base_angle, 1)
+        elif self.t < 0.8:
+          t2 = (self.t-0.5)/0.3 # linear from 0 to 1 between t=0.5 and t=0.8
+          width = int(self.front.get_rect().width * t2)
+          width = width if width > 0 else 1
+          height = self.front.get_rect().height
+          self.image = pygame.transform.scale(self.front, (width, height))
+          self.image = pygame.transform.rotozoom(self.image, self.base_angle, 1)
+        else:
+          self.image = pygame.transform.rotozoom(self.front, self.base_angle, 1)
+
+        self.t += self.step
+
 class Letter:
     def __init__(self, char):
         self.t = 0.0
