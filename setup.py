@@ -1,4 +1,6 @@
+import glob, sys, os
 from distutils.core import setup
+
 setup(name='babyslam',
   version='1.0',
   description='Entertains babies while protecting your computer',
@@ -7,6 +9,7 @@ setup(name='babyslam',
   url='http://github.com/karel1980/babyslam',
   packages=['babyslam'],
   package_dir={'babyslam': 'src/modules/babyslam'},
-  package_data={'babyslam': ['media/*']},
+  #package_data={'babyslam': ['media/*']},
   scripts=['src/scripts/babyslam'],
+  data_files=[('share/babyslam/media', glob.glob('src/media/*'))],
   )

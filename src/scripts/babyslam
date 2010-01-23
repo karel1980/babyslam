@@ -4,6 +4,7 @@ from pygame.locals import *
 import babyslam
 from babyslam import text, effects, shared
 
+
 mode_res = None
 mode_flags = pygame.FULLSCREEN
 try:
@@ -65,7 +66,7 @@ def addObject(obj, ary):
 
 def loadSpecials():
     result = []
-    path = os.path.join(babyslam.__path__[0], 'media')
+    path = os.path.join(os.path.dirname(sys.argv[0]), '../share/babyslam/media')
     files =  os.listdir(path)
     png_pattern = re.compile('\.png$')
     sounds = []
