@@ -2,13 +2,13 @@
 import pygame, random, sys, os, re, time, getopt
 from pygame.locals import *
 import babyslam
-from babyslam import text, effects, shared
-
+from babyslam import text, effects, shared, config, util
 
 mode_res = None
 mode_flags = pygame.FULLSCREEN
+config = None
 try:
-    opts, args = getopt.getopt(sys.argv[1:], "dr:", ["dev", "resolution"])
+    opts, args = getopt.getopt(sys.argv[1:], "dr:c:", ["dev", "resolution", "config"])
 except getopt.GetoptError, err:
     # print help information and exit:
     print str(err) # will print something like "option -a not recognized"
@@ -23,111 +23,90 @@ for o, a in opts:
     if o == "-r":
         #TODO: validate that arg is in \d+x\d+ pattern
         mode_res = tuple([ int(x) for x in a.split("x")])
-
-
-last_hit = time.time() * 1000 # time in millis
-
-symbols = 'abcdefghijklmnopqrstuvwxyz1234567890'
-
-def terminate():
-    pygame.quit()
-    sys.exit()
+    if o == "-c":
+        config = a
+        if not os.path.exists(config):
+            raise "Specified configuration file does not exist: %s"%config
 
 def waitForPlayerToPressKey():
     while True:
         for event in pygame.event.get():
             if event.type == QUIT:
-                terminate()
+                self.terminate()
             if event.type == KEYDOWN:
                 if event.key == K_ESCAPE: # pressing escape quits
-                    terminate()
+                    self.terminate()
                 return
 
 # set up pygame, the window, and the mouse cursor
-pygame.init()
-mainClock = pygame.time.Clock()
 
-mode_res = pygame.display.list_modes()[0] if mode_res is None else mode_res
-print mode_res
-shared.WINDOWWIDTH, shared.WINDOWHEIGHT = mode_res
-shared.windowSurface = pygame.display.set_mode(mode_res, mode_flags)
+class Babyslam(object):
+    def __init__(self, mode_res, mode_flags, config=None):
+        self.escapecnt = 0
 
-pygame.display.set_caption('Babyslam')
-pygame.mouse.set_visible(False)
+        self.mainClock = babyslam.shared.init(mode_res, mode_flags)
+        self.sysfont = pygame.font.SysFont(None, 15)
+        self.config = babyslam.config.XmlConfigBuilder().build_config(config)
+        self.fifo = babyslam.util.Fifo(shared.MAXOBJECTS)
 
-# create font cache (sizes 100 to 300)
-shared.font_cache = dict( (x, pygame.font.SysFont(None, x)) for x in range(100, 301) )
-sysfont = pygame.font.SysFont(None, 15)
+        self.last_hit = time.time() * 1000 # time in millis
+        self.symbols = 'abcdefghijklmnopqrstuvwxyz1234567890'
 
-def addObject(obj, ary):
-  if len(ary) >= shared.MAXOBJECTS:
-      ary[0:1] = []
-  ary.append(obj)
+    def mainloop(self):
+        
+        while True: # the game loop runs while the game part is playing
 
-def loadSpecials():
-    result = []
-    path = os.path.join(os.path.dirname(sys.argv[0]), '../share/babyslam/media')
-    files =  os.listdir(path)
-    png_pattern = re.compile('\.png$')
-    sounds = []
-    for png in filter(lambda x: png_pattern.search(x), files):
-        #crappy code. could be more efficient and more readable
-        base = png[0:png.rindex('.')]
-        sounds = filter(lambda x: x in [ base+'.'+ext for ext in ['wav','ogg']] or (x.startswith(base + '_') and (x.endswith('.ogg') or x.endswith('.wav'))), files)
-        result.append(effects.Special(path+'/'+png, [ path+'/'+x for x in sounds ]))
-    return result
+            for event in pygame.event.get():
+                if event.type == QUIT:
+                    self.terminate()
+                if event.type == KEYDOWN:
+                    self.handle_keydown(event)
+                if event.type == KEYUP:
+                    pass
+                if event.type == MOUSEMOTION:
+                    pass
 
-SPECIALS = loadSpecials()
-print "INFO: Found %d images in media dir"%(len(SPECIALS))
+            if self.escapecnt == len(shared.ESCAPE_CLAUSE):
+                self.terminate()
 
-while True:
-    letters = []
-    escapecnt = 0
-    # set up the start of the game
+            self.draw_screen()
 
-    while True: # the game loop runs while the game part is playing
+    def terminate(self):
+        pygame.quit()
+        sys.exit()
 
-        for event in pygame.event.get():
-            if event.type == QUIT:
-                terminate()
+    def handle_keydown(self, event):
+        if event.key in range(256) and chr(event.key) in self.symbols and shared.ESCAPE_CLAUSE[self.escapecnt] != chr(event.key):
+            self.escapecnt = 0
+        if event.key in range(256) and chr(event.key) in self.symbols and shared.ESCAPE_CLAUSE[self.escapecnt] == chr(event.key):
+            self.escapecnt += 1
 
-            if event.type == KEYDOWN:
-                if event.key in range(256) and chr(event.key) in symbols and shared.ESCAPE_CLAUSE[escapecnt] != chr(event.key):
-                    escapecnt = 0
-                if event.key in range(256) and chr(event.key) in symbols and shared.ESCAPE_CLAUSE[escapecnt] == chr(event.key):
-                    escapecnt += 1
+        now = time.time() * 1000 # time in millis
+        if (now - self.last_hit) > shared.RATE_LIMIT:
+            self.last_hit = now
+            
+            #replace non-alphanumerics with a random alphanumeric
+            char = chr(event.key) if event.key in range(256) and chr(event.key) in self.symbols else random.choice(self.symbols)
 
-                now = time.time() * 1000 # time in millis
-                if (now - last_hit) > shared.RATE_LIMIT:
-                    last_hit = now
-                    char = chr(event.key) if event.key in range(256) and chr(event.key) in symbols else random.choice(symbols)
-                    select = random.random()
-                    if select < 0.1:
-                        addObject(effects.SpecialObj(char, random.choice(SPECIALS)), letters)
-                    elif select < 0.2:
-                        addObject(effects.Flip(char, random.choice(SPECIALS)), letters)
-                    else:
-                        addObject(effects.Letter(char), letters)
+            self.fifo.append(self.config.get_random_effect(char))
 
-            if event.type == KEYUP:
-                None
-
-            if event.type == MOUSEMOTION:
-                None
-
-        if escapecnt == len(shared.ESCAPE_CLAUSE):
-            terminate()
+    def draw_screen(self):
         # Draw the game world on the window.
         shared.windowSurface.fill(shared.BACKGROUNDCOLOR)
+        text.drawText('type %s to quit'%shared.ESCAPE_CLAUSE, self.sysfont, shared.windowSurface, 0, 0)
 
-        text.drawText('type %s to quit'%shared.ESCAPE_CLAUSE, sysfont, shared.windowSurface, 0, 0)
-        # Draw the letters
-        for l in letters:
-            l.update()
-            l.draw()
+        # Draw the effect instances:
+        for effect in self.fifo:
+            effect.update()
+            effect.draw()
 
         pygame.display.update()
+        self.mainClock.tick(shared.FPS)
 
-        mainClock.tick(shared.FPS)
+if config == None:
+    config = os.path.expanduser('~/.babyslam/config.xml')
+if not os.path.exists('~/.babyslam/config.xml'):
+    config = '/etc/babyslam.xml'
 
-    # Stop the game
+if __name__=='__main__':
+    Babyslam(mode_res, mode_flags, config).mainloop()

@@ -1,7 +1,7 @@
 Ideas for future improvements:
 
-* Allow specifying various directories for images and sounds (e.g. you could have a separate directory for animals, people, shapes, colors)...
+* Allow excluding sets (or changing weights) from the command line
 
-* Limit the number of keyboard hits per second
+* Extend documentation
 
-
+* New effect: transport (horizontal (trains, cars), vertical (rockets!))

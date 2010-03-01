@@ -3,45 +3,80 @@ from pygame.locals import *
 
 import shared, text
 
-class Special:
-    def __init__(self, img, sounds):
-        base_image = pygame.image.load(img)
-        self.image_cache = dict( (x, pygame.transform.rotozoom(base_image, x, 1)) for x in range(-30, 31) )
-        self.sound_cache = [ pygame.mixer.Sound(sound) for sound in sounds ]
 
-    def playSound(self):
-        if len(self.sound_cache) > 0: random.choice(self.sound_cache).play()
+# put sound playback here?
+class BaseEffect(object):
+    pass
 
-class SpecialObj:
-    def __init__(self, char, special):
-        self.t = 0.0
-        self.step = 1.0 / 10 # 10 steps, 1/4 second animation
+class BaseEffectInstance(object):
+    def __init__(self, steps, sound=None):
+        self.t = 0
+        self.increase = 1.0 / steps
+        if sound != None:
+          sound.play()
+
+    def update(self):
+        if self.t < 1:
+            self.t += self.increase
+            if self.t >= 1:
+                self.t = 1
+            self.do_update()
+
+    def do_update(self):
+        pass;
+
+
+class RotateEffect(BaseEffect):
+    def __init__(self, images, sound):
+        super(RotateEffect, self).__init__()
+        self.images = [ pygame.image.load(img) for img in images ]
+        self.sound = sound
+        
+    def create_instance(self, char):
+        return RotateEffectInstance(40, self.images, self.sound)
+
+class RotateEffectInstance(BaseEffectInstance):
+    def __init__(self, steps, images, sound):
+        super(RotateEffectInstance, self).__init__(steps, sound)
+        self.images = images
+        self.current = -1 
+
         self.base_angle = random.randint(-20, 20)
         self.base_dir = -1 if random.random() < 0.5 else 1
 
-        self.special = special
-        self.special.playSound()
-        w,h = special.image_cache[0].get_rect().size
+        w,h = self.images[0].get_rect().size
+        #should be different with every instance
         self.center = random.randint(w/2, shared.WINDOWWIDTH - w/2), random.randint(h/2, shared.WINDOWHEIGHT - h/2)
 
     def draw(self):
-        shared.windowSurface.blit(self.image, self.rect)
+        shared.windowSurface.blit(self.current_image, self.rect)
 
-    def update(self):
-        if self.t > 1:
-            return
+    def do_update(self):
+        self.current = ( self.current + 1 ) % len(self.images)
+        self.current_image = self.images[self.current];
 
         t2 = 1 - (1 - self.t)**2 # self.t = linear 0..1, self.t2 = ease-out 0..1
-        self.angle = int(1.0 * self.base_angle + t2 * 10 * self.base_dir)
-        self.image = self.special.image_cache[self.angle]
-        self.rect = self.image.get_rect()
-        self.rect.center = self.center
-        self.t += self.step
 
-class Flip:
-    def __init__(self, char, special):
-        self.t = 0.0
-        self.step = 1.0 / 20 # 0.5 second animation
+        self.angle = int(1.0 * self.base_angle + t2 * 10 * self.base_dir)
+        self.current_image = pygame.transform.rotozoom(self.current_image, self.angle, 1)
+        self.rect = self.current_image.get_rect()
+        self.rect.center = self.center
+        self.t += self.increase
+       
+class FlipEffect(BaseEffect):
+    def __init__(self, images, sound):
+        super(FlipEffect, self).__init__()
+        self.images = [ pygame.image.load(img) for img in images ]
+        self.sound = sound
+        
+    def create_instance(self, char):
+        return FlipEffectInstance(20, self.images, self.sound)
+
+class FlipEffectInstance(BaseEffectInstance):
+    def __init__(self, steps, images, sound):
+        super(FlipEffectInstance, self).__init__(steps, sound)
+        self.images = images
+
         self.base_angle = random.randint(-20, 20)
         self.base_dir = -1 if random.random() < 0.5 else 1
 
@@ -49,10 +84,7 @@ class Flip:
         self.halfway = 0.5
         self.flipend = 1
 
-        self.special = special
-        self.special.playSound()
-
-        size = special.image_cache[0].get_rect().size
+        size = self.images[0].get_rect().size
         # make a 3:2 rect:
         border = 20
         rect = pygame.Rect(0, 0, int(max(size[1] * 3 / 2, size[0])), int(max(size[0] * 2 / 3, size[1]))).inflate(border, border)
@@ -67,9 +99,9 @@ class Flip:
         self.front.set_colorkey((0,0,0))
         self.front.fill(bordercolor)
         self.front.fill(bgcolor, self.back.get_rect().inflate(-border,-border))
-        imgrect = special.image_cache[0].get_rect()
+        imgrect = self.images[0].get_rect()
         imgrect.center = rect.center
-        self.front.blit(special.image_cache[0], imgrect.topleft)
+        self.front.blit(self.images[0], imgrect.topleft)
         w,h = self.front.get_rect().size
         self.center = random.randint(w/2, shared.WINDOWWIDTH - w/2), random.randint(h/2, shared.WINDOWHEIGHT - h/2)
 
@@ -79,10 +111,7 @@ class Flip:
         self.image.set_colorkey((0,0,0))
         shared.windowSurface.blit(self.image, rect)
 
-    def update(self):
-        if self.t > 1:
-            return
-
+    def do_update(self):
         if self.t < self.flipstart:
           self.image = pygame.transform.rotozoom(self.back, self.base_angle, 1)
         elif self.t < self.halfway:
@@ -102,12 +131,16 @@ class Flip:
         else:
           self.image = pygame.transform.rotozoom(self.front, self.base_angle, 1)
 
-        self.t += self.step
+class LetterEffect(BaseEffect):
+    def __init__(self):
+        super(LetterEffect, self).__init__() 
 
-class Letter:
-    def __init__(self, char):
-        self.t = 0.0
-        self.step = 1.0 / 10 # 10 steps, 1/4 second animation
+    def create_instance(self, char):
+        return LetterEffectInstance(10, char)
+
+class LetterEffectInstance(BaseEffectInstance):
+    def __init__(self, steps, char):
+        super(LetterEffectInstance, self).__init__(steps) 
 
         self.char = char
         self.base_size = random.randint(100, 200)
@@ -133,11 +166,7 @@ class Letter:
         shared.windowSurface.blit(outline, (x+1,y+1))
         shared.windowSurface.blit(mytext, (x,y))
 
-    def update(self):
-        if self.t > 1.0:
-            return
+    def do_update(self):
         t2 = 1.25 - 0.25 * (2*(self.t - 0.5)) # 0...1...0 parabolic
         font_size = 1.0 * self.base_size * t2
         self.font = shared.font_cache[int(font_size)]
-        self.t += self.step
-
