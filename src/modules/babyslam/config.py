@@ -23,8 +23,6 @@ class XmlConfigBuilder(object):
     for p in split[1:]:
       basedir = os.path.join(basedir, p)
 
-    print "basedir:::",basedir
-
     if global_el != None:
       basedir_el = global_el.getElementsByTagName('basedir').item(0)
       basedir = basedir_el.firstChild.data
@@ -39,8 +37,12 @@ class XmlConfigBuilder(object):
         for subdir in os.listdir(import_root):
           subdir = os.path.join(import_root, subdir)
           if not os.path.isdir(subdir):
+            print "%s skipped (not a directory)"%subdir
             continue
-          subxml = os.path.join(import_root, subdir,'babyslam.xml')
+          subxml = os.path.join(import_root, subdir,'config.xml')
+          if not os.path.exists(subxml):
+            print "%s does not exist, directory skipped"%subxml
+            continue
           self.collect_effects(str(subxml), config)
 
     for set_el in xmldoc.getElementsByTagName('set'):

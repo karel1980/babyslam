@@ -103,10 +103,11 @@ class Babyslam(object):
         pygame.display.update()
         self.mainClock.tick(shared.FPS)
 
+userconfig = os.path.expanduser('~/.babyslam/config.xml')
 if config == None:
-    config = os.path.expanduser('~/.babyslam/config.xml')
-if not os.path.exists('~/.babyslam/config.xml'):
-    config = '/etc/babyslam.xml'
+    config = userconfig
+if not os.path.exists(userconfig):
+    config = '/etc/babyslam/config.xml'
 
 if __name__=='__main__':
     Babyslam(mode_res, mode_flags, config).mainloop()

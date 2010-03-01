@@ -5,3 +5,9 @@ Ideas for future improvements:
 * Extend documentation
 
 * New effect: transport (horizontal (trains, cars), vertical (rockets!))
+
+* Allow changing the escape clause
+
+* Allow importdirs without config.xml (just assigning rotate and flip effects to the available images (+sounds?)
+
+* Test multi-image animation

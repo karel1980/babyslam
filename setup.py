@@ -5,7 +5,7 @@ from distutils.command.install_data import install_data
 from distutils.core import setup
 from distutils.util import change_root, convert_path
 
-filtered_data_files=[('/etc', [ 'src/etc/babyslam.xml' ])]
+filtered_data_files=[('/etc/babyslam', [ 'src/etc/babyslam/config.xml' ])]
 
 """
   Replacement for install_data.
