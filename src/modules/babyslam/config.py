@@ -53,12 +53,14 @@ class XmlConfigBuilder(object):
           weight = int(weight) if weight!='' else 1
 
           #TODO: handle missing images, sounds, ... more graceously
-          if type == 'rotate':
+          if type == 'letter':
+            config.add_effect(weight, self.build_letter_effect(basedir, item_el, effect_el))
+          elif type == 'rotate':
             config.add_effect(weight, self.build_rotate_effect(basedir, item_el, effect_el))
           elif type == 'flip':
             config.add_effect(weight, self.build_flip_effect(basedir, item_el, effect_el))
-          elif type == 'letter':
-            config.add_effect(weight, self.build_letter_effect(basedir, item_el, effect_el))
+          elif type == 'race':
+            config.add_effect(weight, self.build_race_effect(basedir, item_el, effect_el))
           else:
             print "Unknown effect type %s."%type
 
@@ -75,6 +77,9 @@ class XmlConfigBuilder(object):
       sound = pygame.mixer.Sound(os.path.join(basedir, sound_el.firstChild.data))
     return images, sound
 
+  def build_letter_effect(self, basedir, item_el, effect_el):
+    return effects.LetterEffect()
+
   def build_rotate_effect(self, basedir, item_el, effect_el):
     images, sound = self.get_base_data(basedir, item_el)
     return effects.RotateEffect(images, sound)
@@ -83,8 +88,9 @@ class XmlConfigBuilder(object):
     images, sound = self.get_base_data(basedir, item_el)
     return effects.FlipEffect(images, sound)
 
-  def build_letter_effect(self, basedir, item_el, effect_el):
-    return effects.LetterEffect()
+  def build_race_effect(self, basedir, item_el, effect_el):
+    images, sound = self.get_base_data(basedir, item_el)
+    return effects.RaceEffect(images, sound)
 
 class Config:
   # effects should be a sorted list of (cumul, item) pairs

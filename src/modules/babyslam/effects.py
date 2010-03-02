@@ -1,4 +1,4 @@
-import pygame, random, sys, os, re, time, getopt
+import pygame, random, sys, os, re, time, getopt, math
 from pygame.locals import *
 
 import shared, text
@@ -61,7 +61,6 @@ class RotateEffectInstance(BaseEffectInstance):
         self.current_image = pygame.transform.rotozoom(self.current_image, self.angle, 1)
         self.rect = self.current_image.get_rect()
         self.rect.center = self.center
-        self.t += self.increase
        
 class FlipEffect(BaseEffect):
     def __init__(self, images, sound):
@@ -170,3 +169,49 @@ class LetterEffectInstance(BaseEffectInstance):
         t2 = 1.25 - 0.25 * (2*(self.t - 0.5)) # 0...1...0 parabolic
         font_size = 1.0 * self.base_size * t2
         self.font = shared.font_cache[int(font_size)]
+
+class RaceEffect(BaseEffect):
+    def __init__(self, images, sound):
+        super(RaceEffect, self).__init__()
+        self.images = [ pygame.image.load(img) for img in images ]
+        self.sound = sound
+        
+    def create_instance(self, char):
+        return RaceEffectInstance(80, self.images, self.sound, random.random()*shared.WINDOWHEIGHT, random.random()*shared.WINDOWHEIGHT)
+
+class RaceEffectInstance(BaseEffectInstance):
+    def __init__(self, steps, images, sound, startheight, endheight):
+        super(RaceEffectInstance, self).__init__(steps, sound)
+        self.images = images
+        self.startheight = startheight
+        self.endheight = endheight
+        self.current = -1 
+
+        rect = self.images[0].get_rect()
+        w, h = rect.width, rect.height
+        dy = endheight - startheight
+        dx = shared.WINDOWWIDTH + w
+        self.angle = math.atan(dy / dx)
+        self.base_dir = -1 if random.random() < 0.5 else 1
+        pi = 4*math.atan(1)
+        self.images = [ pygame.transform.rotozoom(x, - self.angle * 180 / pi, 1) for x in self.images ]
+        if self.base_dir == -1:
+          self.images = [ pygame.transform.flip(x, True, False) for x in self.images ]
+
+        w,h = self.images[0].get_rect().size
+        #should be different with every instance
+        self.center = random.randint(w/2, shared.WINDOWWIDTH - w/2), random.randint(h/2, shared.WINDOWHEIGHT - h/2)
+
+    def draw(self):
+        shared.windowSurface.blit(self.current_image, self.rect)
+
+    def do_update(self):
+        w,h = self.images[0].get_rect().size
+        cx = self.t * (shared.WINDOWWIDTH + w) - w/2
+        if self.base_dir == -1:
+          cx = shared.WINDOWWIDTH - cx
+        cy = self.startheight + (self.t * (self.endheight - self.startheight))
+
+        self.current_image = self.images[0]
+        self.rect = self.images[0].get_rect()
+        self.rect.center = (cx, cy)
