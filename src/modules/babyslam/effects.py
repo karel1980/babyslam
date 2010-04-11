@@ -58,7 +58,7 @@ class RotateEffectInstance(BaseEffectInstance):
         t2 = 1 - (1 - self.t)**2 # self.t = linear 0..1, self.t2 = ease-out 0..1
 
         self.angle = int(1.0 * self.base_angle + t2 * 10 * self.base_dir)
-        self.current_image = pygame.transform.rotozoom(self.current_image, self.angle, 1)
+        self.current_image = pygame.transform.rotozoom(self.current_image, self.angle, 1.0 + 0.2*(1-self.t)**2)
         self.rect = self.current_image.get_rect()
         self.rect.center = self.center
        
@@ -111,24 +111,25 @@ class FlipEffectInstance(BaseEffectInstance):
         shared.windowSurface.blit(self.image, rect)
 
     def do_update(self):
+        zoom = 1.0 + 0.2 * (1.0-self.t)**2
         if self.t < self.flipstart:
-          self.image = pygame.transform.rotozoom(self.back, self.base_angle, 1)
+          self.image = pygame.transform.rotozoom(self.back, self.base_angle, zoom)
         elif self.t < self.halfway:
           t2 = 1 - (self.t-self.flipstart)/(self.halfway - self.flipstart) # linear from [1, 0[ between t=0.2 and t=0.5
           width = int(self.back.get_rect().width * t2)
           width = width if width > 0 else 1
           height = self.back.get_rect().height
           self.image = pygame.transform.scale(self.back, (width, height))
-          self.image = pygame.transform.rotozoom(self.image, self.base_angle, 1)
+          self.image = pygame.transform.rotozoom(self.image, self.base_angle, zoom)
         elif self.t < self.flipend:
           t2 = (self.t-self.halfway)/(self.flipend - self.halfway) # linear from 0 to 1 between t=0.5 and t=0.8
           width = int(self.front.get_rect().width * t2)
           width = width if width > 0 else 1
           height = self.front.get_rect().height
           self.image = pygame.transform.scale(self.front, (width, height))
-          self.image = pygame.transform.rotozoom(self.image, self.base_angle, 1)
+          self.image = pygame.transform.rotozoom(self.image, self.base_angle, zoom)
         else:
-          self.image = pygame.transform.rotozoom(self.front, self.base_angle, 1)
+          self.image = pygame.transform.rotozoom(self.front, self.base_angle, zoom)
 
 class LetterEffect(BaseEffect):
     def __init__(self):
