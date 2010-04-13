@@ -1,5 +1,5 @@
 
-import pygame
+import os, sys, pygame
 
 TEXTCOLOR = (255, 255, 255)
 OUTLINECOLOR = (255, 255, 255)
@@ -20,9 +20,10 @@ NICECOLORS = [( 255, 255, 0 ), ( 255,0,255), (0,255,255), (255,0,0), (0,255,0), 
 WINDOWWIDTH, WINDOWHEIGHT = 0, 0
 windowSurface = None
 font_cache = None
+cursor_image = None
 
 def init(mode_res, mode_flags = 0):
-    global WINDOWWIDTH, WINDOWHEIGHT, windowSurface, font_cache
+    global WINDOWWIDTH, WINDOWHEIGHT, windowSurface, font_cache, cursor_image
 
     pygame.init()
     mainClock = pygame.time.Clock()
@@ -36,5 +37,12 @@ def init(mode_res, mode_flags = 0):
 
     # create font cache (sizes 100 to 300)
     font_cache = dict( (x, pygame.font.SysFont(None, x)) for x in range(100, 301) )
+
+    prefix = __file__
+    for a in range(5):
+      prefix = os.path.split(prefix)[0]
+    media_dir = os.path.join(prefix, 'share', 'babyslam', 'media')
+    cursor_image = pygame.image.load(os.path.join(media_dir, 'mouse.png'))
+    
     return mainClock     
 

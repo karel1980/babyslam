@@ -13,7 +13,7 @@ class XmlConfigBuilder(object):
     self.collect_effects(xmlconfig, result)
     return result
  
-  def collect_effects(self, xmlconfig, config):
+  def collect_effects(self, xmlconfig, cfg):
     xmldoc = minidom.parse(xmlconfig)
     config_el = xmldoc.firstChild
     global_el = xmldoc.getElementsByTagName('global').item(0)
@@ -43,7 +43,7 @@ class XmlConfigBuilder(object):
           if not os.path.exists(subxml):
             print "%s does not exist, directory skipped"%subxml
             continue
-          self.collect_effects(str(subxml), config)
+          self.collect_effects(str(subxml), cfg)
 
     for set_el in xmldoc.getElementsByTagName('set'):
       for item_el in set_el.getElementsByTagName('item'):
@@ -54,13 +54,13 @@ class XmlConfigBuilder(object):
 
           #TODO: handle missing images, sounds, ... more graceously
           if type == 'letter':
-            config.add_effect(weight, self.build_letter_effect(basedir, item_el, effect_el))
+            cfg.add_effect(weight, self.build_letter_effect(basedir, item_el, effect_el))
           elif type == 'rotate':
-            config.add_effect(weight, self.build_rotate_effect(basedir, item_el, effect_el))
+            cfg.add_effect(weight, self.build_rotate_effect(basedir, item_el, effect_el))
           elif type == 'flip':
-            config.add_effect(weight, self.build_flip_effect(basedir, item_el, effect_el))
+            cfg.add_effect(weight, self.build_flip_effect(basedir, item_el, effect_el))
           elif type == 'race':
-            config.add_effect(weight, self.build_race_effect(basedir, item_el, effect_el))
+            cfg.add_effect(weight, self.build_race_effect(basedir, item_el, effect_el))
           else:
             print "Unknown effect type %s."%type
 

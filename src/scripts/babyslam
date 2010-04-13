@@ -1,12 +1,11 @@
 #!/usr/bin/python
 import pygame, random, sys, os, re, time, getopt
 from pygame.locals import *
-import babyslam
 from babyslam import text, effects, shared, config, util
 
 mode_res = None
 mode_flags = pygame.FULLSCREEN
-config = None
+cfg_file = None
 try:
     opts, args = getopt.getopt(sys.argv[1:], "dr:c:", ["dev", "resolution", "config"])
 except getopt.GetoptError, err:
@@ -24,9 +23,9 @@ for o, a in opts:
         #TODO: validate that arg is in \d+x\d+ pattern
         mode_res = tuple([ int(x) for x in a.split("x")])
     if o == "-c":
-        config = a
-        if not os.path.exists(config):
-            raise "Specified configuration file does not exist: %s"%config
+        cfg_file = a
+        if not os.path.exists(cfg_file):
+            raise "Specified configuration file does not exist: %s"%cfg_file
 
 def waitForPlayerToPressKey():
     while True:
@@ -41,13 +40,13 @@ def waitForPlayerToPressKey():
 # set up pygame, the window, and the mouse cursor
 
 class Babyslam(object):
-    def __init__(self, mode_res, mode_flags, config=None):
+    def __init__(self, mode_res, mode_flags, cfg_file=None):
         self.escapecnt = 0
 
-        self.mainClock = babyslam.shared.init(mode_res, mode_flags)
+        self.mainClock = shared.init(mode_res, mode_flags)
         self.sysfont = pygame.font.SysFont(None, 15)
-        self.config = babyslam.config.XmlConfigBuilder().build_config(config)
-        self.fifo = babyslam.util.Fifo(shared.MAXOBJECTS)
+        self.config = config.XmlConfigBuilder().build_config(cfg_file)
+        self.fifo = util.Fifo(shared.MAXOBJECTS)
 
         self.last_hit = time.time() * 1000 # time in millis
         self.symbols = 'abcdefghijklmnopqrstuvwxyz1234567890'
@@ -100,14 +99,16 @@ class Babyslam(object):
             effect.update()
             effect.draw()
 
+        shared.windowSurface.blit(shared.cursor_image, pygame.mouse.get_pos())
+
         pygame.display.update()
         self.mainClock.tick(shared.FPS)
 
 userconfig = os.path.expanduser('~/.babyslam/config.xml')
-if config == None:
-    config = userconfig
+if cfg_file == None:
+    cfg_file = userconfig
 if not os.path.exists(userconfig):
-    config = '/etc/babyslam/config.xml'
+    cfg_file = '/etc/babyslam/config.xml'
 
 if __name__=='__main__':
-    Babyslam(mode_res, mode_flags, config).mainloop()
+    Babyslam(mode_res, mode_flags, cfg_file).mainloop()
