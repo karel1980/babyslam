@@ -11,7 +11,6 @@ LETTERMAXSIZE = 40
 IMAGEMINSIZE = 1
 IMAGEMAXSIZE = 8
 PLAYERMOVERATE = 5
-ESCAPE_CLAUSE = "babydodo"
 MAXOBJECTS = 15
 SPECIAL_RATE = 1.0/5 # frequency of 'specials'
 RATE_LIMIT = 0 # minimum number of milliseconds between hits

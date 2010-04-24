@@ -65,7 +65,7 @@ class Babyslam(object):
                 if event.type == MOUSEMOTION:
                     pass
 
-            if self.escapecnt == len(shared.ESCAPE_CLAUSE):
+            if self.escapecnt == len(self.config.escapeclause):
                 self.terminate()
 
             self.draw_screen()
@@ -75,9 +75,9 @@ class Babyslam(object):
         sys.exit()
 
     def handle_keydown(self, event):
-        if event.key in range(256) and chr(event.key) in self.symbols and shared.ESCAPE_CLAUSE[self.escapecnt] != chr(event.key):
+        if event.key in range(256) and chr(event.key) in self.symbols and self.config.escapeclause[self.escapecnt] != chr(event.key):
             self.escapecnt = 0
-        if event.key in range(256) and chr(event.key) in self.symbols and shared.ESCAPE_CLAUSE[self.escapecnt] == chr(event.key):
+        if event.key in range(256) and chr(event.key) in self.symbols and self.config.escapeclause[self.escapecnt] == chr(event.key):
             self.escapecnt += 1
 
         now = time.time() * 1000 # time in millis
@@ -92,7 +92,7 @@ class Babyslam(object):
     def draw_screen(self):
         # Draw the game world on the window.
         shared.windowSurface.fill(shared.BACKGROUNDCOLOR)
-        text.drawText('type %s to quit'%shared.ESCAPE_CLAUSE, self.sysfont, shared.windowSurface, 0, 0)
+        text.drawText('type %s to quit'%self.config.escapeclause, self.sysfont, shared.windowSurface, 0, 0)
 
         # Draw the effect instances:
         for effect in self.fifo:

@@ -24,8 +24,11 @@ class XmlConfigBuilder(object):
       basedir = os.path.join(basedir, p)
 
     if global_el != None:
-      basedir_el = global_el.getElementsByTagName('basedir').item(0)
-      basedir = basedir_el.firstChild.data
+      basedir = self.readStringValue(global_el, 'basedir', '/usr/share/babyslam/media') #FIXME: hardcoded path
+
+      escapeclause = self.readStringValue(global_el, 'escapeclause', None)
+      if escapeclause != None:
+        cfg.escapeclause = escapeclause
 
     for importdirs_el in xmldoc.getElementsByTagName('importdirs'):
       import_root = importdirs_el.firstChild.data
@@ -92,11 +95,22 @@ class XmlConfigBuilder(object):
     images, sound = self.get_base_data(basedir, item_el)
     return effects.RaceEffect(images, sound)
 
+  def readStringValue(self, element, child_name, default):
+    child_el = element.getElementsByTagName(child_name).item(0)
+    print child_el
+    if child_el == None:
+      print 'no child named', child_name, '. returning ', default
+      return default
+    else:
+      print 'child named', child_name, 'has value', child_el.firstChild.data
+      return child_el.firstChild.data
+
 class Config:
   # effects should be a sorted list of (cumul, item) pairs
   def __init__(self):
     self.effects = []
     self.cumul = 0
+    self.escapeclause = 'babydodo'
 
   def add_effect(self, weight, effect):
     self.cumul += weight

@@ -1,8 +1,12 @@
 Ideas for future improvements:
 
-* Allow excluding sets (or changing weights) from the command line
+Documentation:
+  make it more appealing to non-technical users.
+  provide UI for adding sets? (basic 'sets' don't need config.xml. just enable rotate and flip effects by default, ui for configuring other effects)
 
-* Extend documentation
+Uncategorized:
+
+* Allow excluding sets (or changing weights) from the command line
 
 * New effect: transport (horizontal (trains, cars), vertical (rockets!))
 
