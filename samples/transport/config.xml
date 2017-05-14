@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<config>
+  <set id="family">
+    <item>
+      <effect type="race"/>
+      <image>train.png</image>
+      <sound>train.wav</sound>
+    </item>
+    <item>
+      <effect type="race"/>
+      <image>car.png</image>
+      <sound>car.wav</sound>
+    </item>
+    <item>
+      <effect type="race"/>
+      <image>ambulance.png</image>
+      <sound>ambulance.wav</sound>
+    </item>
+  </set>
+</config>

@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<config>
+  <set id="animals">
+    <item>
+      <effect type="rotate"/>
+      <effect type="flip"/>
+      <image>sample_horse.png</image>
+      <sound>sample_horse.wav</sound>
+    </item>
+    <item>
+      <effect type="rotate"/>
+      <effect type="flip"/>
+      <image>sample_cat.png</image>
+      <sound>sample_cat.wav</sound>
+    </item>
+    <item>
+      <effect type="rotate"/>
+      <effect type="flip"/>
+      <image>sample_dog.png</image>
+      <sound>sample_dog.wav</sound>
+    </item>
+  </set>
+</config>
