@@ -1,9 +1,11 @@
 # Babyslam
 
 This program is intended to let baby's slam away on the computer's keyboard
-without being able to break stuff.
+without being able to break software.
 
-Be aware that baby's slamming away at your keyboard may break stuff. Needless to say, I'm not responsible.
+Be aware that babies slamming away at your keyboard could break hardware.
+
+Needless to say, I'm not responsible for either (software or hardware breakage).
 
 ## Installation
 
