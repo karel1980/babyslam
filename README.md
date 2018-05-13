@@ -11,6 +11,7 @@ Needless to say, I'm not responsible for either (software or hardware breakage).
 
 	git clone git://github.com/karel1980/babyslam.git
 	cd babyslam
+	sudo pip install -r requirements.txt
 	sudo python setup.py install
 
 Install additinal sample imagery
